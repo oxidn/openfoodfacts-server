@@ -9529,15 +9529,12 @@ CSS
 
 					if ($col_id =~ /_per_serving$/) {
 
-					my $prep = $col_id;
-					$prep =~ s/_per_serving$//;
-
 					my $input_sets = deep_get($product_ref, "nutrition", "input_sets");
 
 					if (defined $input_sets) {
 					for (my $i = 0; $i < @$input_sets; $i++) {
 
-					if (($input_sets->[$i]{preparation} eq $prep)
+					if (($input_sets->[$i]{preparation} eq $preparation)
 						&& ($input_sets->[$i]{per} eq "serving")
 						) {
 						@nutrients_path = ("nutrition", "input_sets", $i, "nutrients");
