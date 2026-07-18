@@ -9220,6 +9220,17 @@ sub data_to_display_nutrition_table ($product_ref, $comparisons_ref, $request_re
 		};
 
 		push @cols, $preparation . "_" . $per;
+
+		$columns{$preparation . "_per_serving"} = {
+    	scope => "product",
+   		preparation => $preparation,
+    	per => "serving",
+    	name => $col_name . "<br>" . lang("nutrition_data_per_serving"),
+    	short_name => lang("per_serving"),
+    	class => "product",
+		};
+
+		push @cols, $preparation . "_per_serving";
 	}
 
 	# Comparisons with other products, categories, recommended daily values etc.
@@ -9513,11 +9524,32 @@ CSS
 					# id = input_set_[index] : nutrition, input_sets, [index], nutrients
 					# otherwise: nutrition, aggregated_set, nutrients
 
+					
 					my @nutrients_path = ("nutrition", "aggregated_set", "nutrients");
-					if ($col_id =~ /^input_set_(\d+)$/) {
-						my $input_set_index = $1;
-						@nutrients_path = ("nutrition", "input_sets", $input_set_index, "nutrients");
-					}
+
+					if ($col_id =~ /_per_serving$/) {
+
+					my $prep = $col_id;
+					$prep =~ s/_per_serving$//;
+
+					my $input_sets = deep_get($product_ref, "nutrition", "input_sets");
+
+					if (defined $input_sets) {
+					for (my $i = 0; $i < @$input_sets; $i++) {
+
+					if (($input_sets->[$i]{preparation} eq $prep)
+						&& ($input_sets->[$i]{per} eq "serving")
+						) {
+						@nutrients_path = ("nutrition", "input_sets", $i, "nutrients");
+						last;
+			}
+		}
+	}
+}
+					elsif ($col_id =~ /^input_set_(\d+)$/) {
+					my $input_set_index = $1;
+					@nutrients_path = ("nutrition", "input_sets", $input_set_index, "nutrients");
+}
 
 					$col_type = "normal";
 					my $value_unit = "";
